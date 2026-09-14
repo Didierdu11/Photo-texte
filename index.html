@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1565c0">
+<title>Rapport Photo V3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#17202a;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:#1565c0;color:#fff;padding:17px 14px;text-align:center;font-size:21px;font-weight:800}
+main{max-width:820px;margin:auto;padding:14px 12px 30px}.card{background:#fff;border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 2px 10px #0001}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+h3{margin:0 0 12px}label{display:block;font-weight:700;margin:9px 0 6px}
+input,textarea{width:100%;padding:12px;border:1px solid #cbd2d8;border-radius:10px;font:inherit}textarea{min-height:90px}
+button{width:100%;border:0;border-radius:11px;padding:13px;margin-top:9px;font-size:16px;font-weight:750}.primary{background:#1565c0;color:#fff}.secondary{background:#e8f0fe;color:#1557a6}.danger{background:#ffebee;color:#c62828}.success{background:#2e7d32;color:#fff}
+.item{border-top:1px solid #e1e6ea;margin-top:16px;padding-top:16px}.itemhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.mini{width:auto;margin:0;padding:8px 10px;font-size:13px}
+.photo{display:block;width:100%;max-height:430px;object-fit:contain;background:#eef1f4;border-radius:12px;margin-top:10px}
+.muted{font-size:13px;color:#69747e}.status{display:none;background:#edf5ff;color:#174a83;padding:11px;border-radius:10px;margin-bottom:12px}
+.progress{height:8px;background:#e4e8ec;border-radius:20px;overflow:hidden;margin-top:8px}.bar{height:100%;width:0;background:#1565c0}
+</style>
+</head>
+<body>
+<header>📷 Rapport Photo — V3</header>
+<main>
+<div id="status" class="status"></div>
+
+<div class="card">
+<h3>Informations du rapport</h3>
+<div class="grid">
+<div><label>Numéro de rapport</label><input id="num" placeholder="RP-2026-001"></div>
+<div><label>Machine / équipement</label><input id="machine" placeholder="Ligne 2"></div>
+</div>
+<label>Titre</label><input id="title" placeholder="Contrôle / intervention">
+<label>Description générale</label><textarea id="desc" placeholder="Description du rapport…"></textarea>
+<div class="muted" id="created"></div>
+</div>
+
+<div class="card">
+<h3>Photos</h3>
+<button class="primary" id="take">📷 Prendre une photo</button>
+<input id="camera" type="file" accept="image/*" capture="environment" hidden>
+<div id="items"></div>
+<button class="secondary" id="add">➕ Ajouter une photo</button>
+</div>
+
+<div class="card">
+<h3>Export</h3>
+<button class="success" id="excel">📊 Créer l'Excel avec les photos intégrées</button>
+<button class="primary" id="mail">✉️ Créer et envoyer l'Excel</button>
+<button class="danger" id="reset">🔄 Nouveau rapport</button>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<p class="muted">L'Excel V3 contient une feuille de rapport avec les photos insérées dans le classeur, les commentaires et les informations du rapport.</p>
+</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script>
+const $=id=>document.getElementById(id), camera=$('camera'),items=$('items'),bar=$('bar'),status=$('status');
+let rows=[], meta={num:'',machine:'',title:'',desc:''}, created=new Date().toISOString();
+
+function notify(t){status.textContent=t;status.style.display='block';clearTimeout(window.st);window.st=setTimeout(()=>status.style.display='none',4500)}
+function save(){meta={num:$('num').value,machine:$('machine').value,title:$('title').value,desc:$('desc').value};localStorage.setItem('rapportPhotoV3',JSON.stringify({meta,rows,created}));}
+['num','machine','title','desc'].forEach(id=>$(id).addEventListener('input',save));
+$('created').textContent='Créé le '+new Date(created).toLocaleString('fr-FR');
+
+function render(){
+ items.innerHTML='';
+ rows.forEach((r,i)=>{
+  const d=document.createElement('div');d.className='item';
+  const h=document.createElement('div');h.className='itemhead';
+  const s=document.createElement('strong');s.textContent='Photo '+(i+1);
+  const del=document.createElement('button');del.className='danger mini';del.textContent='Supprimer';
+  del.onclick=()=>{rows.splice(i,1);save();render()};
+  h.append(s,del);
+  const img=document.createElement('img');img.className='photo';img.src=r.photo;
+  const lab=document.createElement('label');lab.textContent='Commentaire';
+  const ta=document.createElement('textarea');ta.value=r.comment;ta.placeholder='Commentaire associé à cette photo…';
+  ta.oninput=()=>{r.comment=ta.value;save()};
+  d.append(h,img,lab,ta);items.appendChild(d);
+ });
+}
+function compress(file,max=1500,quality=.82){
+ return new Promise(resolve=>{
+  const rd=new FileReader();rd.onload=()=>{
+   const im=new Image();im.onload=()=>{
+    let w=im.width,h=im.height,scale=Math.min(1,max/Math.max(w,h));w=Math.round(w*scale);h=Math.round(h*scale);
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+    resolve(c.toDataURL('image/jpeg',quality));
+   };im.src=rd.result;
+  };rd.readAsDataURL(file);
+ });
+}
+async function addFile(f){notify('Traitement de la photo…');let data=await compress(f);rows.push({photo:data,comment:''});save();render();notify('Photo ajoutée.')}
+$('take').onclick=()=>camera.click();$('add').onclick=()=>camera.click();
+camera.onchange=()=>{if(camera.files[0])addFile(camera.files[0]);camera.value=''};
+
+function base64Parts(data){let x=data.split(',');return {type:x[0].match(/data:(.*);base64/)[1],base64:x[1]}}
+function ext(data){return data.includes('png')?'png':'jpeg'}
+
+async function buildWorkbook(){
+ if(!rows.length){notify('Ajoute au moins une photo.');return null}
+ const wb=new ExcelJS.Workbook();wb.creator='Rapport Photo V3';wb.created=new Date();
+ const ws=wb.addWorksheet('Rapport');
+ ws.columns=[{width:10},{width:58},{width:42}];
+ ws.mergeCells('A1:C1');ws.getCell('A1').value='RAPPORT PHOTO';ws.getCell('A1').font={bold:true,size:18};ws.getCell('A1').alignment={horizontal:'center'};
+ const info=[['Numéro',meta.num],['Titre',meta.title],['Machine / équipement',meta.machine],['Date',new Date(created).toLocaleString('fr-FR')],['Description',meta.desc]];
+ info.forEach((x,i)=>{ws.getCell(i+2,1).value=x[0];ws.getCell(i+2,1).font={bold:true};ws.getCell(i+2,2).value=x[1];ws.mergeCells(i+2,2,i+2,3)});
+ let row=8;ws.getRow(row).values=['N°','Commentaire','Photo'];ws.getRow(row).font={bold:true};
+ for(let i=0;i<rows.length;i++){
+  const r=rows[i], rr=row+1+i;ws.getCell(rr,1).value=i+1;ws.getCell(rr,2).value=r.comment;ws.getCell(rr,2).alignment={wrapText:true,vertical:'top'};
+  const p=base64Parts(r.photo);const id=wb.addImage({base64:p.base64,extension:ext(r.photo)});
+  ws.addImage(id,{tl:{col:2,row:rr-1},br:{col:3,row:rr+6}});
+  ws.getRow(rr).height=115;
+ }
+ ws.getColumn(2).alignment={wrapText:true,vertical:'top'};ws.views=[{showGridLines:false}];
+ return wb;
+}
+async function makeBlob(){
+ bar.style.width='15%';let wb=await buildWorkbook();if(!wb){bar.style.width='0';return null}
+ bar.style.width='60%';let buf=await wb.xlsx.writeBuffer();bar.style.width='100%';setTimeout(()=>bar.style.width='0',900);
+ return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function fname(){return (meta.num||'rapport_photo').replace(/[^a-z0-9_-]/gi,'_')+'.xlsx'}
+function download(b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fname();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1200)}
+$('excel').onclick=async()=>{let b=await makeBlob();if(b){download(b);notify('Excel V3 créé avec les photos intégrées.')}};
+$('mail').onclick=async()=>{
+ let b=await makeBlob();if(!b)return;let f=new File([b],fname(),{type:b.type});
+ try{
+  if(navigator.canShare?.({files:[f]})){await navigator.share({title:meta.title||'Rapport photo',text:'Rapport photo',files:[f]});}
+  else{download(b);location.href='mailto:?subject='+encodeURIComponent(meta.title||'Rapport photo')+'&body='+encodeURIComponent('Bonjour,\\n\\nVeuillez trouver le rapport photo en pièce jointe.');notify('Excel téléchargé. Ajoute-le au mail si nécessaire.')}
+ }catch(e){notify('Partage annulé.')}
+};
+$('reset').onclick=()=>{if(confirm('Effacer le rapport actuel et commencer un nouveau rapport ?')){localStorage.removeItem('rapportPhotoV3');rows=[];meta={num:'',machine:'',title:'',desc:''};created=new Date().toISOString();['num','machine','title','desc'].forEach(id=>$(id).value='');$('created').textContent='Créé le '+new Date(created).toLocaleString('fr-FR');render();notify('Nouveau rapport prêt.')}};
+(function load(){try{let x=JSON.parse(localStorage.getItem('rapportPhotoV3')||'null');if(x){meta=x.meta||meta;rows=x.rows||[];created=x.created||created;['num','machine','title','desc'].forEach(id=>$(id).value=meta[id]||'');$('created').textContent='Créé le '+new Date(created).toLocaleString('fr-FR');render()}}catch(e){}})();
+</script>
+</body></html>
