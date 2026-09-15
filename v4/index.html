@@ -696,6 +696,1214 @@ function openAnnotation(pointIndex,photoIndex){
 
 function getPointerPosition(e){
 
+  const rect =
+    canvas.getBoundingClientRect();
+
+  let clientX;
+  let clientY;
+
+  if(e.touches && e.touches.length){
+
+    clientX=e.touches[0].clientX;
+    clientY=e.touches[0].clientY;
+
+  }else{
+
+    clientX=e.clientX;
+    clientY=e.clientY;
+
+  }
+
+  return {
+    x:
+      (clientX-rect.left) *
+      canvas.width /
+      rect.width,
+
+    y:
+      (clientY-rect.top) *
+      canvas.height /
+      rect.height
+  };
+
+}
+
+function startDrawing(e){
+
+  e.preventDefault();
+
+  drawing=true;
+
+  const p=getPointerPosition(e);
+
+  startX=p.x;
+  startY=p.y;
+}
+
+function stopDrawing(e){
+
+  if(!drawing) return;
+
+  e.preventDefault();
+
+  drawing=false;
+
+  const p=getPointerPosition(e);
+
+  const x=Math.min(startX,p.x);
+  const y=Math.min(startY,p.y);
+
+  const w=Math.abs(p.x-startX);
+  const h=Math.abs(p.y-startY);
+
+  if(w<10 || h<10)
+    return;
+
+  ctx.save();
+
+  ctx.strokeStyle="red";
+  ctx.lineWidth=Math.max(
+    5,
+    canvas.width/250
+  );
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x+w/2,
+    y+h/2,
+    w/2,
+    h/2,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+}
+
+canvas.addEventListener(
+  "mousedown",
+  startDrawing
+);
+
+canvas.addEventListener(
+  "mouseup",
+  stopDrawing
+);
+
+canvas.addEventListener(
+  "touchstart",
+  startDrawing,
+  {passive:false}
+);
+
+canvas.addEventListener(
+  "touchend",
+  stopDrawing,
+  {passive:false}
+);
+
+function clearDrawing(){
+
+  if(!originalImage)
+    return;
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  ctx.drawImage(
+    originalImage,
+    0,
+    0
+  );
+}
+
+function validatePhoto(){
+
+  const result =
+    canvas.toDataURL(
+      "image/jpeg",
+      0.88
+    );
+
+  data.points[currentPoint]
+    .photos[currentPhoto]
+    .src=result;
+
+  saveSilently();
+
+  closeModal();
+
+  renderPoints();
+}
+
+function closeModal(){
+
+  document.getElementById(
+    "photoModal"
+  ).style.display="none";
+
+  originalImage=null;
+}
+
+/* EXCEL */
+
+async function exportExcel(){
+
+  updateData();
+
+  if(!window.ExcelJS){
+
+    alert("ExcelJS n'est pas encore chargé.");
+    return;
+  }
+
+  const workbook =
+    new ExcelJS.Workbook();
+
+  workbook.creator="Rapport Photo V4";
+
+  const sheet =
+    workbook.addWorksheet("Rapport");
+
+  sheet.columns=[
+    {
+      header:"N°",
+      key:"num",
+      width:8
+    },
+    {
+      header:"Commentaire",
+      key:"comment",
+      width:45
+    }
+  ];
+
+  let maxPhotos=0;
+
+  data.points.forEach(p=>{
+    maxPhotos=Math.max(
+      maxPhotos,
+      p.photos.length
+    );
+  });
+
+  for(let i=0;i<maxPhotos;i++){
+
+    sheet.getColumn(
+      3+i
+    ).width=30;
+
+  }
+
+  const headers=[
+    "N°",
+    "Commentaire"
+  ];
+
+  for(let i=0;i<maxPhotos;i++){
+
+    headers.push(
+      "Photo "+(i+1)
+    );
+
+  }
+
+  sheet.getRow(1).values=headers;
+
+  sheet.getRow(1).font={
+    bold:true
+  };
+
+  sheet.getRow(1).alignment={
+    vertical:"middle",
+    horizontal:"center"
+  };
+
+  data.points.forEach(
+    (point,index)=>{
+
+      const row =
+        sheet.addRow([
+          index+1,
+          point.comment || ""
+        ]);
+
+      row.alignment={
+        vertical:"top",
+        wrapText:true
+      };
+
+      let rowHeight=45;
+
+      point.photos.forEach(
+        (photo,photoIndex)=>{
+
+          const imageId =
+            workbook.addImage({
+              base64:photo.src,
+              extension:"jpeg"
+            });
+
+          const img =
+            new Image();
+
+          img.src=photo.src;
+
+          let width=210;
+          let height=160;
+
+          if(img.width && img.height){
+
+            const ratio =
+              img.width/img.height;
+
+            height=width/ratio;
+
+            if(height>240){
+
+              height=240;
+              width=height*ratio;
+
+            }
+
+          }
+
+          rowHeight=Math.max(
+            rowHeight,
+            height*0.75+15
+          );
+
+          sheet.addImage(
+            imageId,
+            {
+              tl:{
+                col:2+photoIndex,
+                row:row.number
+              },
+              ext:{
+                width:width,
+                height:height
+              }
+            }
+          );
+
+        }
+      );
+
+      row.height=rowHeight;
+
+    }
+  );
+
+  /* Informations générales */
+
+  sheet.insertRow(
+    1,
+    ["Rapport Photo V4"]
+  );
+
+  sheet.mergeCells(
+    1,
+    1,
+    1,
+    Math.max(2,maxPhotos+2)
+  );
+
+  sheet.getRow(1).font={
+    bold:true,
+    size:16
+  };
+
+  sheet.insertRow(
+    2,
+    ["Numéro",data.reportNumber]
+  );
+
+  sheet.insertRow(
+    3,
+    ["Machine",data.machine]
+  );
+
+  sheet.insertRow(
+    4,
+    ["Titre",data.title]
+  );
+
+  sheet.insertRow(
+    5,
+    ["Date",data.date]
+  );
+
+  sheet.insertRow(
+    6,
+    ["Description",data.description]
+  );
+
+  sheet.insertRow(7,[]);
+
+  const buffer =
+    await workbook.xlsx.writeBuffer();
+
+  const blob =
+    new Blob(
+      [buffer],
+      {
+        type:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      }
+    );
+
+  const filename =
+    "Rapport_Photo_" +
+    (data.reportNumber || "V4") +
+    ".xlsx";
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
+  a.href=url;
+  a.download=filename;
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  setTimeout(
+    ()=>URL.revokeObjectURL(url),
+    1000
+  );
+
+}
+
+/* PARTAGE */
+
+async function shareReport(){
+
+  updateData();
+
+  saveSilently();
+
+  const text =
+`Rapport Photo V4
+
+Rapport : ${data.reportNumber || ""}
+Machine : ${data.machine || ""}
+Titre : ${data.title || ""}
+Date : ${data.date || ""}
+
+Nombre de points : ${data.points.length}`;
+
+  if(
+    navigator.share
+  ){
+
+    try{
+
+      await navigator.share({
+        title:"Rapport Photo V4",
+        text:text
+      });
+
+    }catch(e){}
+
+  }else{
+
+    await navigator.clipboard.writeText(text);
+
+    alert(
+      "Les informations du rapport ont été copiées."
+    );
+
+  }
+
+}
+
+/* NOUVEAU */
+
+function newReport(){
+
+  if(!confirm(
+    "Créer un nouveau rapport ? Les données actuelles seront effacées."
+  ))
+    return;
+
+  data={
+    reportNumber:"",
+    machine:"",
+    title:"",
+    description:"",
+    date:new Date()
+      .toISOString()
+      .substring(0,10),
+    points:[]
+  };
+
+  saveSilently();
+
+  document.getElementById(
+    "reportNumber"
+  ).value="";
+
+  document.getElementById(
+    "machine"
+  ).value="";
+
+  document.getElementById(
+    "title"
+  ).value="";
+
+  document.getElementById(
+    "description"
+  ).value="";
+
+  document.getElementById(
+    "date"
+  ).value=data.date;
+
+  renderPoints();
+}
+
+/* OUTILS */
+
+function saveSilently(){
+
+  updateData();
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data)
+  );
+
+}
+
+function escapeHtml(text){
+
+  return String(text)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+/* SAUVEGARDE AUTOMATIQUE */
+
+[
+  "reportNumber",
+  "machine",
+  "title",
+  "description",
+  "date"
+].forEach(id=>{
+
+  document.getElementById(id)
+    .addEventListener(
+      "input",
+      saveSilently
+    );
+
+});
+
+/* SERVICE WORKER */
+
+if("serviceWorker" in navigator){
+
+  window.addEventListener(
+    "load",
+    ()=>{
+      navigator.serviceWorker
+        .register("./sw.js")
+        .catch(
+          err=>console.log(
+            "Service Worker:",
+            err
+          )
+        );
+    }
+  );
+
+}
+
+</script>
+
+</body>
+</html>}
+.card{
+  background:white;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px #0001;
+}
+label{
+  display:block;
+  font-weight:bold;
+  margin:10px 0 5px;
+}
+input,textarea{
+  width:100%;
+  padding:11px;
+  border:1px solid #bbb;
+  border-radius:8px;
+  font-size:16px;
+}
+textarea{min-height:90px;resize:vertical}
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px 16px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:4px;
+}
+.primary{background:#1976d2;color:white}
+.success{background:#2e7d32;color:white}
+.danger{background:#d32f2f;color:white}
+.secondary{background:#e0e0e0;color:#222}
+
+.point{
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:12px;
+  margin-top:15px;
+}
+.point-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+.photos{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;
+  margin-top:10px;
+}
+.photo-card{
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+  background:#fafafa;
+}
+.photo-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  display:block;
+}
+.photo-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  padding:4px;
+}
+.photo-buttons button{
+  flex:1;
+  font-size:12px;
+  padding:8px 5px;
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:15px;
+}
+.empty{
+  text-align:center;
+  color:#777;
+  padding:20px;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#000b;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+.modal-content{
+  background:white;
+  width:100%;
+  max-width:800px;
+  border-radius:12px;
+  padding:12px;
+}
+.canvas-wrap{
+  position:relative;
+  width:100%;
+  background:#111;
+  text-align:center;
+  overflow:hidden;
+}
+#canvas{
+  max-width:100%;
+  display:block;
+  margin:auto;
+  touch-action:none;
+}
+.modal-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:8px;
+}
+
+.info{
+  background:#e3f2fd;
+  border-left:4px solid #1976d2;
+  padding:10px;
+  border-radius:5px;
+  margin-bottom:10px;
+}
+
+@media(max-width:500px){
+  button{font-size:15px}
+  .photos{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📷 Rapport Photo – V4</h1>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<label>Numéro du rapport</label>
+<input id="reportNumber" placeholder="Ex : RP-2026-001">
+
+<label>Machine / équipement</label>
+<input id="machine" placeholder="Ex : Machine 01">
+
+<label>Titre du rapport</label>
+<input id="title" placeholder="Ex : Contrôle maintenance">
+
+<label>Description générale</label>
+<textarea id="description" placeholder="Description générale du rapport..."></textarea>
+
+<label>Date</label>
+<input id="date" type="date">
+
+</div>
+
+<div class="card">
+
+<div class="info">
+<b>Points du rapport</b><br>
+Chaque commentaire peut contenir plusieurs photos.
+Vous pouvez dessiner un cercle rouge sur une photo pour mettre un élément en évidence.
+</div>
+
+<div id="points"></div>
+
+<div class="actions">
+<button class="primary" onclick="addPoint()">
+➕ Ajouter un commentaire / point
+</button>
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="actions">
+
+<button class="success" onclick="exportExcel()">
+📊 Exporter Excel
+</button>
+
+<button class="primary" onclick="shareReport()">
+📤 Partager
+</button>
+
+<button class="secondary" onclick="saveReport()">
+💾 Enregistrer
+</button>
+
+<button class="danger" onclick="newReport()">
+🗑️ Nouveau rapport
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MODAL PHOTO -->
+
+<div class="modal" id="photoModal">
+
+<div class="modal-content">
+
+<h3>Annoter la photo</h3>
+
+<div class="canvas-wrap">
+<canvas id="canvas"></canvas>
+</div>
+
+<div class="modal-actions">
+
+<button class="danger" onclick="clearDrawing()">
+🗑️ Effacer
+</button>
+
+<button class="success" onclick="validatePhoto()">
+✓ Valider
+</button>
+
+<button class="secondary" onclick="closeModal()">
+✕ Fermer
+</button>
+
+</div>
+
+<p style="text-align:center">
+Faites glisser votre doigt sur la photo pour dessiner un cercle rouge.
+</p>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+<script>
+
+const STORAGE_KEY = "rapportPhotoV4";
+
+let data = {
+  reportNumber:"",
+  machine:"",
+  title:"",
+  description:"",
+  date:"",
+  points:[]
+};
+
+let currentPoint = null;
+let currentPhoto = null;
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let drawing = false;
+let startX = 0;
+let startY = 0;
+let originalImage = null;
+
+/* DATE */
+
+document.getElementById("date").value =
+  new Date().toISOString().substring(0,10);
+
+/* CHARGEMENT */
+
+function loadReport(){
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+
+  if(saved){
+
+    try{
+      data = JSON.parse(saved);
+    }catch(e){
+      console.log(e);
+    }
+
+  }
+
+  document.getElementById("reportNumber").value =
+    data.reportNumber || "";
+
+  document.getElementById("machine").value =
+    data.machine || "";
+
+  document.getElementById("title").value =
+    data.title || "";
+
+  document.getElementById("description").value =
+    data.description || "";
+
+  document.getElementById("date").value =
+    data.date || new Date().toISOString().substring(0,10);
+
+  renderPoints();
+}
+
+loadReport();
+
+/* SAUVEGARDE */
+
+function updateData(){
+
+  data.reportNumber =
+    document.getElementById("reportNumber").value;
+
+  data.machine =
+    document.getElementById("machine").value;
+
+  data.title =
+    document.getElementById("title").value;
+
+  data.description =
+    document.getElementById("description").value;
+
+  data.date =
+    document.getElementById("date").value;
+}
+
+function saveReport(){
+
+  updateData();
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data)
+  );
+
+  alert("Rapport enregistré.");
+}
+
+/* POINTS */
+
+function addPoint(){
+
+  updateData();
+
+  const point = {
+    comment:"",
+    photos:[]
+  };
+
+  data.points.push(point);
+
+  saveSilently();
+
+  renderPoints();
+
+  setTimeout(()=>{
+
+    const textareas =
+      document.querySelectorAll(".point textarea");
+
+    if(textareas.length){
+      textareas[textareas.length-1].focus();
+    }
+
+    addPhoto(data.points.length-1);
+
+  },100);
+
+}
+
+function deletePoint(index){
+
+  if(!confirm("Supprimer ce point et toutes ses photos ?"))
+    return;
+
+  data.points.splice(index,1);
+
+  saveSilently();
+
+  renderPoints();
+}
+
+function renderPoints(){
+
+  const container =
+    document.getElementById("points");
+
+  container.innerHTML="";
+
+  if(data.points.length===0){
+
+    container.innerHTML =
+      '<div class="empty">Aucun point pour le moment.<br>Appuyez sur « Ajouter un commentaire / point ».</div>';
+
+    return;
+  }
+
+  data.points.forEach((point,index)=>{
+
+    const div =
+      document.createElement("div");
+
+    div.className="point";
+
+    div.innerHTML=`
+
+      <div class="point-title">
+        Point ${index+1}
+      </div>
+
+      <label>Commentaire</label>
+
+      <textarea
+        placeholder="Décrivez le problème, l'intervention ou le point contrôlé..."
+        oninput="changeComment(${index},this.value)"
+      >${escapeHtml(point.comment || "")}</textarea>
+
+      <div class="photos" id="photos-${index}"></div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="addPhoto(${index})"
+        >
+          📷 Ajouter une photo
+        </button>
+
+        <button
+          class="danger"
+          onclick="deletePoint(${index})"
+        >
+          🗑️ Supprimer le point
+        </button>
+
+      </div>
+    `;
+
+    container.appendChild(div);
+
+    renderPhotos(index);
+
+  });
+
+}
+
+function changeComment(index,value){
+
+  data.points[index].comment=value;
+
+  saveSilently();
+}
+
+/* PHOTOS */
+
+function addPhoto(pointIndex){
+
+  currentPoint=pointIndex;
+
+  const input =
+    document.createElement("input");
+
+  input.type="file";
+  input.accept="image/*";
+  input.capture="environment";
+
+  input.onchange = function(){
+
+    if(!this.files || !this.files[0])
+      return;
+
+    const file=this.files[0];
+
+    const reader =
+      new FileReader();
+
+    reader.onload=function(e){
+
+      compressImage(
+        e.target.result,
+        function(result){
+
+          data.points[pointIndex].photos.push({
+            src:result
+          });
+
+          saveSilently();
+
+          renderPoints();
+
+        }
+      );
+
+    };
+
+    reader.readAsDataURL(file);
+
+  };
+
+  input.click();
+}
+
+function renderPhotos(pointIndex){
+
+  const container =
+    document.getElementById(
+      "photos-"+pointIndex
+    );
+
+  if(!container) return;
+
+  container.innerHTML="";
+
+  const photos =
+    data.points[pointIndex].photos;
+
+  photos.forEach((photo,photoIndex)=>{
+
+    const div =
+      document.createElement("div");
+
+    div.className="photo-card";
+
+    div.innerHTML=`
+
+      <img
+        src="${photo.src}"
+        onclick="openAnnotation(${pointIndex},${photoIndex})"
+      >
+
+      <div class="photo-buttons">
+
+        <button
+          class="primary"
+          onclick="openAnnotation(${pointIndex},${photoIndex})"
+        >
+          ✏️
+        </button>
+
+        <button
+          class="danger"
+          onclick="deletePhoto(${pointIndex},${photoIndex})"
+        >
+          🗑️
+        </button>
+
+      </div>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+}
+
+function deletePhoto(pointIndex,photoIndex){
+
+  if(!confirm("Supprimer cette photo ?"))
+    return;
+
+  data.points[pointIndex].photos.splice(
+    photoIndex,1
+  );
+
+  saveSilently();
+
+  renderPoints();
+}
+
+/* COMPRESSION */
+
+function compressImage(src,callback){
+
+  const img=new Image();
+
+  img.onload=function(){
+
+    const max=1600;
+
+    let w=img.width;
+    let h=img.height;
+
+    if(w>max || h>max){
+
+      if(w>h){
+        h=Math.round(h*max/w);
+        w=max;
+      }else{
+        w=Math.round(w*max/h);
+        h=max;
+      }
+
+    }
+
+    const c=document.createElement("canvas");
+
+    c.width=w;
+    c.height=h;
+
+    const cctx=c.getContext("2d");
+
+    cctx.drawImage(img,0,0,w,h);
+
+    callback(
+      c.toDataURL("image/jpeg",0.82)
+    );
+
+  };
+
+  img.src=src;
+}
+
+/* ANNOTATION */
+
+function openAnnotation(pointIndex,photoIndex){
+
+  currentPoint=pointIndex;
+  currentPhoto=photoIndex;
+
+  const src =
+    data.points[pointIndex]
+      .photos[photoIndex].src;
+
+  const img=new Image();
+
+  img.onload=function(){
+
+    originalImage=img;
+
+    canvas.width=img.naturalWidth;
+    canvas.height=img.naturalHeight;
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    ctx.drawImage(
+      img,
+      0,
+      0
+    );
+
+    document.getElementById(
+      "photoModal"
+    ).style.display="flex";
+
+  };
+
+  img.src=src;
+}
+
+function getPointerPosition(e){
+
   const rect = canvas.getBoundingClientRect();
 
   let clientX;
