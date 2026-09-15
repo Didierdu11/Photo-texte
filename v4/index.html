@@ -2,24 +2,29 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+
 <meta name="theme-color" content="#1976d2">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Rapport Photo V4">
 
 <link rel="manifest" href="./manifest.webmanifest">
 
-<title>Rapport Photo – V4</title>
+<title>Rapport Photo V4</title>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f3f6f9;
   color:#222;
 }
+
 header{
   background:#1976d2;
   color:white;
@@ -29,12 +34,1489 @@ header{
   top:0;
   z-index:10;
 }
-header h1{margin:0;font-size:22px}
+
+header h1{
+  margin:0;
+  font-size:22px;
+}
+
 .container{
   max-width:900px;
   margin:auto;
   padding:15px;
 }
+
+.card{
+  background:white;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px #0001;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:10px 0 5px;
+}
+
+input,
+textarea{
+  width:100%;
+  padding:11px;
+  border:1px solid #bbb;
+  border-radius:8px;
+  font-size:16px;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:12px 16px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:4px;
+  touch-action:manipulation;
+}
+
+.primary{
+  background:#1976d2;
+  color:white;
+}
+
+.success{
+  background:#2e7d32;
+  color:white;
+}
+
+.danger{
+  background:#d32f2f;
+  color:white;
+}
+
+.secondary{
+  background:#e0e0e0;
+  color:#222;
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:15px;
+}
+
+.info{
+  background:#e3f2fd;
+  border-left:4px solid #1976d2;
+  padding:10px;
+  border-radius:5px;
+  margin-bottom:10px;
+}
+
+.empty{
+  text-align:center;
+  color:#777;
+  padding:20px;
+}
+
+.point{
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:12px;
+  margin-top:15px;
+}
+
+.point-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.photos{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  gap:10px;
+  margin-top:10px;
+}
+
+.photo-card{
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+  background:#fafafa;
+}
+
+.photo-card img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  display:block;
+  cursor:pointer;
+}
+
+.photo-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  padding:4px;
+}
+
+.photo-buttons button{
+  flex:1;
+  font-size:12px;
+  padding:8px 5px;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#000b;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+}
+
+.modal-content{
+  background:white;
+  width:100%;
+  max-width:850px;
+  max-height:95vh;
+  overflow:auto;
+  border-radius:12px;
+  padding:12px;
+}
+
+.canvas-wrap{
+  position:relative;
+  width:100%;
+  background:#111;
+  text-align:center;
+  overflow:hidden;
+  border-radius:8px;
+}
+
+#canvas{
+  max-width:100%;
+  max-height:70vh;
+  display:block;
+  margin:auto;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.modal-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:8px;
+}
+
+@media(max-width:500px){
+
+  button{
+    font-size:15px;
+  }
+
+  .photos{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📷 Rapport Photo – V4</h1>
+</header>
+
+<div class="container">
+
+<!-- INFORMATIONS RAPPORT -->
+
+<div class="card">
+
+<label>Numéro du rapport</label>
+
+<input
+  id="reportNumber"
+  placeholder="Ex : RP-2026-001"
+>
+
+<label>Machine / équipement</label>
+
+<input
+  id="machine"
+  placeholder="Ex : Machine 01"
+>
+
+<label>Titre du rapport</label>
+
+<input
+  id="title"
+  placeholder="Ex : Contrôle maintenance"
+>
+
+<label>Description générale</label>
+
+<textarea
+  id="description"
+  placeholder="Description générale du rapport..."
+></textarea>
+
+<label>Date</label>
+
+<input
+  id="date"
+  type="date"
+>
+
+</div>
+
+
+<!-- POINTS -->
+
+<div class="card">
+
+<div class="info">
+
+<b>Points du rapport</b>
+
+<br>
+
+Chaque point possède un commentaire et peut contenir
+plusieurs photos.
+
+<br>
+
+Sur une photo, tu peux dessiner un cercle rouge
+pour mettre un élément en évidence.
+
+</div>
+
+
+<div id="points"></div>
+
+
+<div class="actions">
+
+<button
+  type="button"
+  class="primary"
+  id="addPointButton"
+>
+➕ Ajouter un commentaire / point
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ACTIONS -->
+
+<div class="card">
+
+<div class="actions">
+
+<button
+  type="button"
+  class="success"
+  id="exportButton"
+>
+📊 Exporter Excel
+</button>
+
+
+<button
+  type="button"
+  class="primary"
+  id="shareButton"
+>
+📤 Partager
+</button>
+
+
+<button
+  type="button"
+  class="secondary"
+  id="saveButton"
+>
+💾 Enregistrer
+</button>
+
+
+<button
+  type="button"
+  class="danger"
+  id="newButton"
+>
+🗑️ Nouveau rapport
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- MODALE ANNOTATION -->
+
+<div
+  class="modal"
+  id="photoModal"
+>
+
+<div class="modal-content">
+
+<h3>🔴 Annoter la photo</h3>
+
+<div class="canvas-wrap">
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+
+<div class="modal-actions">
+
+<button
+  type="button"
+  class="danger"
+  id="clearButton"
+>
+🗑️ Effacer
+</button>
+
+
+<button
+  type="button"
+  class="success"
+  id="validateButton"
+>
+✓ Valider
+</button>
+
+
+<button
+  type="button"
+  class="secondary"
+  id="closeButton"
+>
+✕ Fermer
+</button>
+
+</div>
+
+
+<p style="text-align:center">
+
+Fais glisser ton doigt sur la photo
+pour dessiner un cercle rouge.
+
+</p>
+
+</div>
+
+</div>
+
+
+<!-- EXCELJS -->
+
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+
+<script>
+
+"use strict";
+
+
+/* =========================================================
+   DONNÉES
+========================================================= */
+
+const STORAGE_KEY = "rapportPhotoV4";
+
+let data = {
+  reportNumber:"",
+  machine:"",
+  title:"",
+  description:"",
+  date:"",
+  points:[]
+};
+
+let currentPoint = -1;
+let currentPhoto = -1;
+let originalImage = null;
+
+
+/* =========================================================
+   ÉLÉMENTS HTML
+========================================================= */
+
+const reportNumber =
+  document.getElementById("reportNumber");
+
+const machine =
+  document.getElementById("machine");
+
+const title =
+  document.getElementById("title");
+
+const description =
+  document.getElementById("description");
+
+const date =
+  document.getElementById("date");
+
+const pointsContainer =
+  document.getElementById("points");
+
+const addPointButton =
+  document.getElementById("addPointButton");
+
+const saveButton =
+  document.getElementById("saveButton");
+
+const newButton =
+  document.getElementById("newButton");
+
+const exportButton =
+  document.getElementById("exportButton");
+
+const shareButton =
+  document.getElementById("shareButton");
+
+const photoModal =
+  document.getElementById("photoModal");
+
+const canvas =
+  document.getElementById("canvas");
+
+const ctx =
+  canvas.getContext("2d");
+
+const clearButton =
+  document.getElementById("clearButton");
+
+const validateButton =
+  document.getElementById("validateButton");
+
+const closeButton =
+  document.getElementById("closeButton");
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function today(){
+
+  return new Date()
+    .toISOString()
+    .substring(0,10);
+
+}
+
+
+/* =========================================================
+   CHARGEMENT
+========================================================= */
+
+function loadReport(){
+
+  const saved =
+    localStorage.getItem(STORAGE_KEY);
+
+  if(saved){
+
+    try{
+
+      const parsed =
+        JSON.parse(saved);
+
+      if(
+        parsed &&
+        typeof parsed === "object"
+      ){
+
+        data = parsed;
+
+      }
+
+    }catch(error){
+
+      console.log(
+        "Erreur chargement :",
+        error
+      );
+
+    }
+
+  }
+
+
+  if(!Array.isArray(data.points)){
+
+    data.points = [];
+
+  }
+
+
+  data.points.forEach(point => {
+
+    if(!Array.isArray(point.photos)){
+
+      point.photos = [];
+
+    }
+
+    if(typeof point.comment !== "string"){
+
+      point.comment = "";
+
+    }
+
+  });
+
+
+  reportNumber.value =
+    data.reportNumber || "";
+
+  machine.value =
+    data.machine || "";
+
+  title.value =
+    data.title || "";
+
+  description.value =
+    data.description || "";
+
+  date.value =
+    data.date || today();
+
+
+  renderPoints();
+
+}
+
+
+/* =========================================================
+   MISE À JOUR DONNÉES
+========================================================= */
+
+function updateData(){
+
+  data.reportNumber =
+    reportNumber.value;
+
+  data.machine =
+    machine.value;
+
+  data.title =
+    title.value;
+
+  data.description =
+    description.value;
+
+  data.date =
+    date.value;
+
+}
+
+
+/* =========================================================
+   SAUVEGARDE
+========================================================= */
+
+function saveSilently(){
+
+  updateData();
+
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data)
+  );
+
+}
+
+
+function saveReport(){
+
+  saveSilently();
+
+  alert(
+    "Rapport enregistré."
+  );
+
+}
+
+
+/* =========================================================
+   AJOUT D'UN POINT
+========================================================= */
+
+function addPoint(){
+
+  updateData();
+
+
+  const point = {
+
+    comment:"",
+    photos:[]
+
+  };
+
+
+  data.points.push(point);
+
+
+  saveSilently();
+
+
+  renderPoints();
+
+
+  /* Mise au point sur le nouveau commentaire */
+
+  setTimeout(function(){
+
+    const textareas =
+      document.querySelectorAll(
+        ".point textarea"
+      );
+
+    if(textareas.length){
+
+      textareas[
+        textareas.length - 1
+      ].focus();
+
+    }
+
+  },100);
+
+
+  /* Propose immédiatement de prendre une photo */
+
+  setTimeout(function(){
+
+    addPhoto(
+      data.points.length - 1
+    );
+
+  },200);
+
+}
+
+
+/* =========================================================
+   SUPPRESSION POINT
+========================================================= */
+
+function deletePoint(index){
+
+  if(
+    !confirm(
+      "Supprimer ce point et toutes ses photos ?"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  data.points.splice(index,1);
+
+
+  saveSilently();
+
+
+  renderPoints();
+
+}
+
+
+/* =========================================================
+   AFFICHAGE DES POINTS
+========================================================= */
+
+function renderPoints(){
+
+  pointsContainer.innerHTML = "";
+
+
+  if(data.points.length === 0){
+
+    pointsContainer.innerHTML =
+      '<div class="empty">' +
+      'Aucun point pour le moment.<br>' +
+      'Appuie sur « Ajouter un commentaire / point ».' +
+      '</div>';
+
+    return;
+
+  }
+
+
+  data.points.forEach(
+    function(point,index){
+
+      if(!Array.isArray(point.photos)){
+
+        point.photos = [];
+
+      }
+
+
+      const div =
+        document.createElement("div");
+
+      div.className = "point";
+
+
+      const titleDiv =
+        document.createElement("div");
+
+      titleDiv.className =
+        "point-title";
+
+      titleDiv.textContent =
+        "Point " + (index + 1);
+
+
+      div.appendChild(titleDiv);
+
+
+      const label =
+        document.createElement("label");
+
+      label.textContent =
+        "Commentaire";
+
+      div.appendChild(label);
+
+
+      const textarea =
+        document.createElement("textarea");
+
+      textarea.placeholder =
+        "Décrivez le problème, l'intervention ou le point contrôlé...";
+
+      textarea.value =
+        point.comment || "";
+
+
+      textarea.addEventListener(
+        "input",
+        function(){
+
+          data.points[index].comment =
+            this.value;
+
+          saveSilently();
+
+        }
+      );
+
+
+      div.appendChild(textarea);
+
+
+      const photos =
+        document.createElement("div");
+
+      photos.className =
+        "photos";
+
+      photos.id =
+        "photos-" + index;
+
+
+      div.appendChild(photos);
+
+
+      const actions =
+        document.createElement("div");
+
+      actions.className =
+        "actions";
+
+
+      const addPhotoButton =
+        document.createElement("button");
+
+      addPhotoButton.type =
+        "button";
+
+      addPhotoButton.className =
+        "primary";
+
+      addPhotoButton.textContent =
+        "📷 Ajouter une photo";
+
+
+      addPhotoButton.addEventListener(
+        "click",
+        function(){
+
+          addPhoto(index);
+
+        }
+      );
+
+
+      actions.appendChild(
+        addPhotoButton
+      );
+
+
+      const deleteButton =
+        document.createElement("button");
+
+      deleteButton.type =
+        "button";
+
+      deleteButton.className =
+        "danger";
+
+      deleteButton.textContent =
+        "🗑️ Supprimer le point";
+
+
+      deleteButton.addEventListener(
+        "click",
+        function(){
+
+          deletePoint(index);
+
+        }
+      );
+
+
+      actions.appendChild(
+        deleteButton
+      );
+
+
+      div.appendChild(actions);
+
+
+      pointsContainer.appendChild(div);
+
+
+      renderPhotos(index);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   AJOUT PHOTO
+========================================================= */
+
+function addPhoto(pointIndex){
+
+  if(
+    !data.points[pointIndex]
+  ){
+
+    return;
+
+  }
+
+
+  const input =
+    document.createElement("input");
+
+  input.type =
+    "file";
+
+  input.accept =
+    "image/*";
+
+  input.setAttribute(
+    "capture",
+    "environment"
+  );
+
+  input.style.display =
+    "none";
+
+
+  document.body.appendChild(input);
+
+
+  input.addEventListener(
+    "change",
+    function(){
+
+      if(
+        !this.files ||
+        !this.files[0]
+      ){
+
+        document.body.removeChild(input);
+
+        return;
+
+      }
+
+
+      const file =
+        this.files[0];
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function(event){
+
+          compressImage(
+            event.target.result,
+            function(result){
+
+              data.points[
+                pointIndex
+              ].photos.push({
+
+                src:result
+
+              });
+
+
+              saveSilently();
+
+
+              renderPoints();
+
+            }
+          );
+
+        };
+
+
+      reader.readAsDataURL(file);
+
+
+      document.body.removeChild(input);
+
+    }
+  );
+
+
+  input.click();
+
+}
+
+
+/* =========================================================
+   AFFICHAGE PHOTOS
+========================================================= */
+
+function renderPhotos(pointIndex){
+
+  const container =
+    document.getElementById(
+      "photos-" + pointIndex
+    );
+
+
+  if(!container){
+
+    return;
+
+  }
+
+
+  container.innerHTML = "";
+
+
+  const photos =
+    data.points[pointIndex].photos;
+
+
+  photos.forEach(
+    function(photo,photoIndex){
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "photo-card";
+
+
+      const img =
+        document.createElement("img");
+
+      img.src =
+        photo.src;
+
+      img.alt =
+        "Photo " + (photoIndex + 1);
+
+
+      img.addEventListener(
+        "click",
+        function(){
+
+          openAnnotation(
+            pointIndex,
+            photoIndex
+          );
+
+        }
+      );
+
+
+      card.appendChild(img);
+
+
+      const buttons =
+        document.createElement("div");
+
+      buttons.className =
+        "photo-buttons";
+
+
+      const editButton =
+        document.createElement("button");
+
+      editButton.type =
+        "button";
+
+      editButton.className =
+        "primary";
+
+      editButton.textContent =
+        "✏️";
+
+
+      editButton.addEventListener(
+        "click",
+        function(){
+
+          openAnnotation(
+            pointIndex,
+            photoIndex
+          );
+
+        }
+      );
+
+
+      buttons.appendChild(
+        editButton
+      );
+
+
+      const deleteButton =
+        document.createElement("button");
+
+      deleteButton.type =
+        "button";
+
+      deleteButton.className =
+        "danger";
+
+      deleteButton.textContent =
+        "🗑️";
+
+
+      deleteButton.addEventListener(
+        "click",
+        function(){
+
+          deletePhoto(
+            pointIndex,
+            photoIndex
+          );
+
+        }
+      );
+
+
+      buttons.appendChild(
+        deleteButton
+      );
+
+
+      card.appendChild(buttons);
+
+
+      container.appendChild(card);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   SUPPRESSION PHOTO
+========================================================= */
+
+function deletePhoto(
+  pointIndex,
+  photoIndex
+){
+
+  if(
+    !confirm(
+      "Supprimer cette photo ?"
+    )
+  ){
+
+    return;
+
+  }
+
+
+  data.points[
+    pointIndex
+  ].photos.splice(
+    photoIndex,
+    1
+  );
+
+
+  saveSilently();
+
+
+  renderPoints();
+
+}
+
+
+/* =========================================================
+   COMPRESSION IMAGE
+========================================================= */
+
+function compressImage(
+  src,
+  callback
+){
+
+  const img =
+    new Image();
+
+
+  img.onload =
+    function(){
+
+      const max =
+        1600;
+
+      let width =
+        img.naturalWidth;
+
+      let height =
+        img.naturalHeight;
+
+
+      if(
+        width > max ||
+        height > max
+      ){
+
+        if(width > height){
+
+          height =
+            Math.round(
+              height * max / width
+            );
+
+          width =
+            max;
+
+        }else{
+
+          width =
+            Math.round(
+              width * max / height
+            );
+
+          height =
+            max;
+
+        }
+
+      }
+
+
+      const c =
+        document.createElement("canvas");
+
+
+      c.width =
+        width;
+
+      c.height =
+        height;
+
+
+      const cctx =
+        c.getContext("2d");
+
+
+      cctx.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+
+      callback(
+        c.toDataURL(
+          "image/jpeg",
+          0.82
+        )
+      );
+
+    };
+
+
+  img.src =
+    src;
+
+}
+
+
+/* =========================================================
+   ANNOTATION
+========================================================= */
+
+function openAnnotation(
+  pointIndex,
+  photoIndex
+){
+
+  currentPoint =
+    pointIndex;
+
+  currentPhoto =
+    photoIndex;
+
+
+  const src =
+    data.points[
+      pointIndex
+    ].photos[
+      photoIndex
+    ].src;
+
+
+  const img =
+    new Image();
+
+
+  img.onload =
+    function(){
+
+      originalImage =
+        img;
+
+
+      canvas.width =
+        img.naturalWidth;
+
+      canvas.height =
+        img.naturalHeight;
+
+
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+
+      ctx.drawImage(
+        img,
+        0,
+        0
+      );
+
+
+      photoModal.style.display =
+        "flex";
+
+    };
+
+
+  img.src =
+    src;
+
+}
+
+
+/* =========================================================
+   POSITION DOIGT / SOURIS
+========================================================= */
+
+function getPointerPosition(event){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  let clientX =
+    event.clientX;
+
+  let clientY =
+    event.clientY;
+
+
+  if(
+    event.touches &&
+    event.touches.length > 0
+  ){
+
+    clientX =
+      event.touches[0].clientX;
+
+    clientY =
+      event.touches[0].clientY;
+
+  }
+
+
+  if(
+    event.changedTouches &&
+    event.changedTouches.length > 0
+  ){
+
+    clientX =
+      event.changedTouches[0].clientX;
+
+    clientY =
+      event.changedTouches[0].clientY;
+
+  }
+
+
+  return {
+
+    x:
+      (clientX - rect.left)
+      * canvas.width
+      / rect.width,
+
+    y:
+      (clientY - rect.top)
+      * canvas.height
+      / rect.height
+
+  };
+
+}
+
+
+/* =========================================================
+   DESSIN CERCLE
+========================================================= */
+
+let drawing = false;
+
+let startX = 0;
+
+let startY = 0;
+
+
+canvas.addEventListener(
+  "pointerdown",
+  function(event){
+
+    event.preventDefault();
+
+
+    drawing = true;
+
+
+    try{
+
+      canvas.setPointerCapture(
+        event.pointerId
+      );
+
+    }catch(error){}
+
+
+    const p =
+      getPointerPosition(event);
+
+
+    startX =
+      p.x;
+
+    startY =
+      p.y;
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointerup",
+  function(event){
+
+    event.preventDefault();
+
+
+    if(!drawing){
+
+      return;
+
+    }
+
+
+    drawing = false;
+
+
+    const p =
+      getPointerPosition(event);
+
+
+    const x =
+      Math.min(
+        startX,
+        p.x
+      );
+
+
+    const y =
+      Math.min(
+        startY,
+        p.y
+      );
+
+
+    const width =
+      Math.abs(
+        p.x - startX
+    }
 .card{
   background:white;
   border-radius:12px;
