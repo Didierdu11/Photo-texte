@@ -696,25 +696,33 @@ function openAnnotation(pointIndex,photoIndex){
 
 function getPointerPosition(e){
 
-  const rect =
-    canvas.getBoundingClientRect();
+  const rect = canvas.getBoundingClientRect();
 
   let clientX;
   let clientY;
 
   if(e.touches && e.touches.length){
 
-    clientX=e.touches[0].clientX;
-    clientY=e.touches[0].clientY;
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+
+  }else if(e.changedTouches && e.changedTouches.length){
+
+    clientX = e.changedTouches[0].clientX;
+    clientY = e.changedTouches[0].clientY;
 
   }else{
 
-    clientX=e.clientX;
-    clientY=e.clientY;
+    clientX = e.clientX;
+    clientY = e.clientY;
 
   }
 
   return {
+    x: (clientX - rect.left) * canvas.width / rect.width,
+    y: (clientY - rect.top) * canvas.height / rect.height
+  };
+}
     x:
       (clientX-rect.left) *
       canvas.width /
