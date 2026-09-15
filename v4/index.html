@@ -793,27 +793,71 @@ function stopDrawing(e){
 
 }
 
-canvas.addEventListener(
-  "mousedown",
-  startDrawing
-);
+let isDrawing = false;
 
-canvas.addEventListener(
-  "mouseup",
-  stopDrawing
-);
+canvas.style.touchAction = "none";
 
-canvas.addEventListener(
-  "touchstart",
-  startDrawing,
-  {passive:false}
-);
+canvas.addEventListener("pointerdown", function(e){
 
-canvas.addEventListener(
-  "touchend",
-  stopDrawing,
-  {passive:false}
-);
+  e.preventDefault();
+
+  isDrawing = true;
+
+  canvas.setPointerCapture(e.pointerId);
+
+  const p = getPointerPosition(e);
+
+  startX = p.x;
+  startY = p.y;
+
+});
+
+canvas.addEventListener("pointerup", function(e){
+
+  e.preventDefault();
+
+  if(!isDrawing) return;
+
+  isDrawing = false;
+
+  const p = getPointerPosition(e);
+
+  const x = Math.min(startX, p.x);
+  const y = Math.min(startY, p.y);
+
+  const w = Math.abs(p.x - startX);
+  const h = Math.abs(p.y - startY);
+
+  if(w < 10 || h < 10) return;
+
+  ctx.save();
+
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = Math.max(8, canvas.width / 180);
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    x + w / 2,
+    y + h / 2,
+    w / 2,
+    h / 2,
+    0,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.stroke();
+
+  ctx.restore();
+
+});
+
+canvas.addEventListener("pointercancel", function(){
+
+  isDrawing = false;
+
+});
 
 function clearDrawing(){
 
