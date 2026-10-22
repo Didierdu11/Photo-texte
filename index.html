@@ -202,6 +202,9 @@ body{background:#f3f4f6;padding:0}
 .memo-pw-box{max-height:92vh;overflow-y:auto}
 .memo-pw-box label{display:block;font-size:.8rem;font-weight:600;color:#4b3d58;margin:0 0 8px}
 .memo-pw-box label input{margin:3px 0 0}
+.memo-pw-box select{width:100%;box-sizing:border-box;margin:3px 0 8px;padding:10px;border:1.5px solid #d9cbb5;border-radius:10px;background:#fff;color:#281936;font-size:.95rem}
+.memo-pw-box .chk{display:flex;gap:8px;align-items:center}
+.memo-pw-box .chk input{width:auto;margin:0}
 .memo-sec ul{list-style:none;margin:0;padding:6px 0}
 .memo-sec li{display:flex;gap:12px;align-items:flex-start;padding:11px 16px;line-height:1.45;font-size:.97rem}
 .memo-sec li+li{border-top:1px dashed #eadfcf}
@@ -318,6 +321,7 @@ body{background:#f3f4f6;padding:0}
   <div class="cloud-status" id="cloudStatus" style="display:none"></div>
 </div>
 
+<button class="secondary" id="intranetBtn" style="margin-top:12px">🌐 Enregistrement sur l’intranet</button>
 <button class="secondary" id="newReport" style="margin-top:12px">🆕 Nouveau rapport (effacer la sauvegarde)</button>
 
 <p class="hint">Important : pour ouvrir directement la caméra, cette page doit être hébergée en HTTPS (GitHub Pages, Netlify, etc.). Un fichier HTML ouvert localement ne peut pas accéder à la caméra sur la plupart des téléphones.</p>
@@ -355,12 +359,30 @@ body{background:#f3f4f6;padding:0}
   <div class="memo-pw" id="memoPw" hidden><div class="memo-pw-box"><h4>Enregistrer l’aide-mémoire</h4><p>Saisissez le mot de passe pour valider les modifications.</p><input type="password" id="memoPwInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Mot de passe"><p class="memo-pw-err" id="memoPwErr"></p><div class="memo-pw-btns"><button id="memoPwOk">Valider</button><button id="memoPwNo">Annuler</button></div></div></div>
 </div>
 
+<div class="memo-pw" id="intraCfg" hidden><div class="memo-pw-box"><h4>Enregistrement Excel sur l’intranet</h4>
+  <p>Après chaque export Excel, le fichier peut être enregistré sur le réseau de l’entreprise.</p>
+  <label>Mode<select id="inMode"><option value="off">Désactivé (téléchargement seulement)</option><option value="folder">Dossier réseau (Chrome / Edge sur ordinateur)</option><option value="url">Serveur intranet (adresse web)</option></select></label>
+  <div id="inFolder" hidden>
+    <div class="memo-pw-btns"><button id="inPick" type="button">📁 Choisir le dossier…</button></div>
+    <p id="inFolderName" style="margin:8px 0 0;font-size:.85rem"></p>
+  </div>
+  <div id="inUrl" hidden>
+    <label>Adresse du serveur (https)<input id="inUrlVal" type="url" placeholder="https://intranet.exemple.fr/visites/" autocapitalize="off" autocomplete="off"></label>
+    <label>Méthode<select id="inMethod"><option value="PUT">PUT (WebDAV, adresse + nom du fichier)</option><option value="POST">POST (formulaire, champ « file »)</option></select></label>
+    <label>Identifiant (facultatif)<input id="inUser" autocapitalize="off" autocomplete="off"></label>
+    <label>Mot de passe (facultatif)<input id="inPass" type="password" autocomplete="off"></label>
+  </div>
+  <label class="chk"><input type="checkbox" id="inAlso" checked> Télécharger aussi une copie sur cet appareil</label>
+  <p class="memo-pw-err" id="inMsg"></p>
+  <div class="memo-pw-btns"><button id="inOk" type="button">Enregistrer</button><button id="inNo" type="button">Fermer</button></div>
+  <p style="margin:10px 0 0"><a href="#" id="inTest" style="font-size:.85rem">Tester l’envoi d’un petit fichier</a></p>
+</div></div>
 <div class="help-overlay" id="helpOverlay">
   <div class="help-modal">
     <button class="close-help" id="closeHelp">✖️ Fermer</button>
     <h2>❓ Notice d'utilisation</h2>
     <p>Cette application permet de créer un compte rendu de visite sécurité avec photos annotées, directement depuis votre téléphone ou ordinateur, sans connexion à un serveur.</p>
-    <p>Le bouton <b>📋 Aide-mémoire</b>, à côté de celui de la notice, ouvre la liste des points à contrôler pendant la visite (circulation, EPI, machines, électricité, travail en hauteur). Le bouton <b>✏️ Modifier</b> permet de changer le texte, les puces et la disposition ; l’enregistrement des changements demande un mot de passe et publie le texte sur GitHub pour tous les utilisateurs. Elle fonctionne aussi hors ligne.</p>
+    <p>Le bouton <b>📋 Aide-mémoire</b>, à côté de celui de la notice, ouvre la liste des points à contrôler pendant la visite (voir § 10). Le bouton <b>🌐 Enregistrement sur l’intranet</b> règle l’enregistrement des fichiers Excel sur le réseau de l’entreprise (voir § 11).</p>
     <p>Un <b>résumé visuel</b> apparaît en haut de la page dès qu'une photo est ajoutée, avec le nombre de points "à corriger", "corrigés" et "bonnes pratiques".</p>
 
     <h3>1. Informations générales</h3>
@@ -406,7 +428,7 @@ body{background:#f3f4f6;padding:0}
 
     <h3>6. Exporter le rapport</h3>
     <ul>
-      <li><b>📊 Excel</b> : génère un fichier .xlsx avec toutes les photos, commentaires et actions.</li>
+      <li><b>📊 Excel</b> : génère un fichier .xlsx avec toutes les photos, commentaires et actions. Il peut aussi être enregistré automatiquement sur l’intranet (voir § 11).</li>
       <li><b>📄 PDF stylisé</b> : génère un fichier .pdf mis en forme, prêt à être imprimé ou partagé.</li>
     </ul>
 
@@ -425,6 +447,36 @@ body{background:#f3f4f6;padding:0}
     <p>Ensuite, appuyez sur le bouton <b>📲 Installer l’application</b> (ou ajoutez-la à l’écran d’accueil depuis le menu de Chrome ; sur iPhone : Partager puis « Sur l’écran d’accueil »). Vous pourrez la lancer sans Wi-Fi ni données mobiles : la saisie, l’appareil photo, la galerie, les annotations, la sauvegarde locale et le PDF restent disponibles.</p>
     <p>L’application vérifie automatiquement les mises à jour dès que le réseau revient. Vous pouvez aussi utiliser le bouton <b>🔄 Vérifier la mise à jour</b>. Si une nouvelle version est disponible, un message propose de recharger la page.</p>
     <p>Hors ligne, un bandeau signale que l’envoi vers la base partagée Supabase n’est pas possible. Les données restent enregistrées sur l’appareil.</p>
+
+    <h3>10. Aide-mémoire (points à contrôler)</h3>
+    <ul>
+      <li><b>Consulter</b> : appuyez sur <b>📋 Aide-mémoire</b>. La liste regroupe les rubriques (circulation, EPI, machines, électricité, travail en hauteur). Elle fonctionne aussi hors ligne ; <b>← Retour</b> ferme la page.</li>
+      <li><b>Modifier</b> : appuyez sur <b>✏️ Modifier</b> (en haut à droite).
+        <ul>
+          <li>Touchez un titre ou un point pour changer son texte.</li>
+          <li><b>↑ ↓</b> changent l’ordre, <b>✕</b> supprime un point ou une rubrique, <b>＋ Ajouter un point</b> et <b>＋ Rubrique</b> en ajoutent.</li>
+          <li><b>Puces</b> : Onoré (étoile + o), étoile dorée, coche, rond, case à cocher ou aucune.</li>
+          <li><b>Disposition</b> : cartes, liste compacte, ou deux colonnes (sur écran large ou tablette en paysage).</li>
+          <li><b>Taille du texte</b> : petit, moyen ou grand.</li>
+        </ul>
+      </li>
+      <li><b>Enregistrer</b> : appuyez sur <b>💾 Enregistrer</b>, puis saisissez le <b>mot de passe</b>. Avec un mot de passe incorrect, rien n’est enregistré et vous pouvez continuer à modifier.</li>
+      <li><b>Publication</b> : après le mot de passe, le texte est enregistré sur l’appareil puis publié sur GitHub. Il est visible par tous les utilisateurs d’ici environ une minute, et la version de l’application avance automatiquement. Si l’envoi échoue (pas de réseau, jeton refusé), un bandeau indique que la version reste sur l’appareil : utilisez <b>↻ Envoyer vers GitHub</b> pour réessayer.</li>
+      <li><b>⚙️ GitHub</b> (mode édition) : à renseigner une seule fois sur l’appareil de l’administrateur (propriétaire, dépôt, branche, fichier et jeton d’accès). Le jeton reste sur cet appareil.</li>
+      <li><b>Annuler</b> abandonne les modifications en cours ; <b>Réinitialiser</b> revient à la version publiée ; <b>📤 Exporter</b> télécharge le fichier <code>memo.json</code> (solution de secours).</li>
+      <li>À chaque ouverture, l’aide-mémoire est relu depuis GitHub. Hors ligne, la dernière version connue est affichée.</li>
+    </ul>
+
+    <h3>11. Enregistrement du fichier Excel sur l’intranet</h3>
+    <p>Appuyez sur <b>🌐 Enregistrement sur l’intranet</b> pour choisir où sont enregistrés les fichiers <b>📊 Excel</b> et <b>🗄️ Excel base complète</b>.</p>
+    <ul>
+      <li><b>Désactivé</b> : le fichier est seulement téléchargé sur l’appareil.</li>
+      <li><b>Dossier réseau</b> (ordinateur avec Chrome ou Edge) : choisissez une fois un dossier du partage réseau (par exemple <code>\\serveur\partage\Visites</code>). Le navigateur redemande l’autorisation à chaque nouvelle session. Ce mode n’existe pas sur téléphone, iPhone, Firefox ou Safari.</li>
+      <li><b>Serveur intranet</b> (aussi sur téléphone) : indiquez l’adresse https du serveur, la méthode (PUT ou POST) et, si besoin, un identifiant et un mot de passe. L’appareil doit être sur le Wi-Fi de l’entreprise ou en VPN, et le serveur doit autoriser l’application (à demander au service informatique).</li>
+      <li><b>Tester l’envoi</b> dépose un petit fichier <code>test-visite-securite.txt</code> pour vérifier le réglage.</li>
+      <li>La case <b>Télécharger aussi une copie sur cet appareil</b> garde une copie locale. Si l’enregistrement sur l’intranet échoue, le fichier est toujours téléchargé et un message l’indique.</li>
+      <li>Les réglages (dont l’identifiant et le mot de passe éventuels) sont mémorisés uniquement sur cet appareil.</li>
+    </ul>
 
     <h3>À savoir</h3>
     <p>Pour ouvrir directement la caméra, la page doit être hébergée en HTTPS (GitHub Pages, Netlify, etc.). Un fichier HTML ouvert localement ne peut pas accéder à la caméra sur la plupart des téléphones.</p>
@@ -1263,9 +1315,94 @@ function downloadForApple(blob,filename){
   }
 }
 
+/* ========== Enregistrement Excel sur l'intranet ========== */
+const IN_KEY='visiteSecuriteIntranet';
+function intranetCfg(){
+  let c={};try{c=JSON.parse(localStorage.getItem(IN_KEY)||'{}')||{};}catch(e){}
+  return Object.assign({mode:'off',url:'',method:'PUT',user:'',pass:'',folderName:'',also:true},c);
+}
+function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('visiteSecuriteDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbSet(k,v){const d=await idbOpen();return new Promise((res,rej)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error);});}
+async function idbGet(k){const d=await idbOpen();return new Promise((res,rej)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}
+/* À appeler au début du clic d'export : le navigateur n'accepte de redemander l'accès au dossier qu'à ce moment-là */
+async function intranetPrepare(){
+  if(intranetCfg().mode!=='folder')return;
+  try{
+    const dir=await idbGet('dir');
+    if(dir&&dir.queryPermission&&await dir.queryPermission({mode:'readwrite'})!=='granted')await dir.requestPermission({mode:'readwrite'});
+  }catch(e){}
+}
+async function intranetSend(blob,name){
+  const c=intranetCfg();
+  if(c.mode==='folder'){
+    const dir=await idbGet('dir');
+    if(!dir)throw new Error('aucun dossier choisi');
+    if(dir.queryPermission&&await dir.queryPermission({mode:'readwrite'})!=='granted'&&await dir.requestPermission({mode:'readwrite'})!=='granted')throw new Error('accès au dossier refusé');
+    const fh=await dir.getFileHandle(name,{create:true}),w=await fh.createWritable();
+    await w.write(blob);await w.close();return;
+  }
+  if(c.mode==='url'){
+    if(!c.url)throw new Error('adresse non renseignée');
+    if(location.protocol==='https:'&&/^http:/i.test(c.url))throw new Error('adresse http bloquée depuis une page https, utilisez https');
+    const headers={};
+    if(c.user)headers.Authorization='Basic '+btoa(unescape(encodeURIComponent(c.user+':'+c.pass)));
+    let r;
+    try{
+      if(c.method==='POST'){const fd=new FormData();fd.append('filename',name);fd.append('file',blob,name);r=await fetch(c.url,{method:'POST',headers:headers,body:fd});}
+      else r=await fetch(c.url.replace(/\/?$/,'/')+encodeURIComponent(name),{method:'PUT',headers:Object.assign({'Content-Type':blob.type||'application/octet-stream'},headers),body:blob});
+    }catch(e){throw new Error('serveur injoignable (réseau, VPN ou autorisation CORS)');}
+    if(!r.ok)throw new Error('réponse du serveur '+r.status);
+    return;
+  }
+  throw new Error('mode désactivé');
+}
+/* Enregistre le fichier Excel : intranet si configuré, sinon (ou en plus) téléchargement */
+async function saveExcel(blob,name,quiet){
+  const c=intranetCfg();let note='',sent=false;
+  if(c.mode!=='off'){
+    try{await intranetSend(blob,name);sent=true;note=' • Intranet : ✔ '+name;}
+    catch(e){note=' • Intranet : échec ('+(e.message||e)+'), fichier téléchargé sur l’appareil';}
+  }
+  if(!sent||c.also)downloadFile(blob,name);
+  if(!quiet&&note)cloudMsg(note.slice(3),sent);
+  return note;
+}
+(function(){
+  const show=()=>{const m=$('inMode').value;$('inFolder').hidden=m!=='folder';$('inUrl').hidden=m!=='url';};
+  const fill=()=>{
+    const c=intranetCfg();
+    $('inMode').value=c.mode;$('inUrlVal').value=c.url;$('inMethod').value=c.method;$('inUser').value=c.user;$('inPass').value=c.pass;$('inAlso').checked=!!c.also;
+    $('inFolderName').textContent=window.showDirectoryPicker?(c.folderName?'Dossier choisi : '+c.folderName:'Aucun dossier choisi.'):'Non disponible sur ce navigateur : utilisez Chrome ou Edge sur ordinateur, ou le mode « Serveur intranet ».';
+    $('inPick').disabled=!window.showDirectoryPicker;
+    $('inMsg').textContent='';show();
+  };
+  const read=()=>Object.assign(intranetCfg(),{mode:$('inMode').value,url:$('inUrlVal').value.trim(),method:$('inMethod').value,user:$('inUser').value.trim(),pass:$('inPass').value,also:$('inAlso').checked});
+  const save=c=>{try{localStorage.setItem(IN_KEY,JSON.stringify(c));}catch(e){}};
+  $('intranetBtn').onclick=()=>{fill();$('intraCfg').hidden=false;};
+  $('inMode').onchange=show;
+  $('inPick').onclick=async()=>{
+    try{
+      const dir=await window.showDirectoryPicker({mode:'readwrite'});
+      await idbSet('dir',dir);
+      const c=read();c.folderName=dir.name;save(c);
+      $('inFolderName').textContent='Dossier choisi : '+dir.name;
+    }catch(e){if(e&&e.name!=='AbortError')$('inMsg').textContent='Impossible de choisir ce dossier : '+(e.message||e);}
+  };
+  $('inOk').onclick=()=>{save(read());$('intraCfg').hidden=true;cloudMsg(intranetCfg().mode==='off'?'Enregistrement intranet désactivé.':'Enregistrement intranet activé.',true);};
+  $('inNo').onclick=()=>{$('intraCfg').hidden=true;};
+  $('inTest').onclick=async e=>{
+    e.preventDefault();
+    const m=$('inMode').value;if(m==='off'){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Choisissez d’abord un mode.';return;}
+    save(read());$('inMsg').style.color='#4b3d58';$('inMsg').textContent='Envoi du test…';
+    try{await intranetPrepare();await intranetSend(new Blob(['Test Visite sécurité - '+new Date().toLocaleString('fr-FR')],{type:'text/plain'}),'test-visite-securite.txt');$('inMsg').style.color='#2e7d32';$('inMsg').textContent='✔ Test réussi (fichier test-visite-securite.txt).';}
+    catch(err){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Échec : '+(err.message||err);}
+  };
+})();
+
 /* ========== Export Excel ========== */
 $('exportXlsx').onclick=async()=>{
   if(!window.ExcelJS)return alert('Module Excel indisponible. Vérifiez Internet.');
+  await intranetPrepare();
   let q=info(),wb=new ExcelJS.Workbook,ws=wb.addWorksheet(safe(q.date+' '+q.title));
   await saveVisitToCloud(q,photos);
   ws.mergeCells('A1:D1');
@@ -1317,13 +1454,14 @@ $('exportXlsx').onclick=async()=>{
   ws.getCell(`A${lastRow}`).alignment={horizontal:'center'};
   ws.getCell(`A${lastRow}`).font={italic:true,size:9,color:{argb:'FF94A3B8'}};
   let b=await wb.xlsx.writeBuffer();
-  downloadFile(new Blob([b],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'compte-rendu-'+q.date+'.xlsx');
+  await saveExcel(new Blob([b],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'compte-rendu-'+q.date+'.xlsx');
 };
 
 /* ========== Export Excel de toute la base Supabase ========== */
 $('exportAllXlsx').onclick=async()=>{
   if(!window.ExcelJS)return alert('Module Excel indisponible.');
   if(!supa)return alert('Supabase non configuré.');
+  await intranetPrepare();
   const button=$('exportAllXlsx');button.disabled=true;
   try{
     const visits=[];
@@ -1367,8 +1505,8 @@ $('exportAllXlsx').onclick=async()=>{
     }
     if(!visits.length)ws.addRow(['Aucune visite enregistrée']);
     const buffer=await wb.xlsx.writeBuffer();
-    downloadFile(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'toutes-les-visites-'+new Date().toISOString().slice(0,10)+'.xlsx');
-    cloudMsg('Export terminé : '+visits.length+' visite(s), '+failures+' photo(s) indisponible(s).',!failures);
+    const net=await saveExcel(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'toutes-les-visites-'+new Date().toISOString().slice(0,10)+'.xlsx',true);
+    cloudMsg('Export terminé : '+visits.length+' visite(s), '+failures+' photo(s) indisponible(s).'+net,!failures&&!/échec/.test(net));
     if(failures)alert(failures+' photo(s) indisponible(s). Les liens sont conservés dans Excel.');
   }catch(e){cloudMsg('Erreur export : '+(e.message||e),false);alert('Erreur export : '+(e.message||e));}
   finally{button.disabled=false;}
@@ -1516,7 +1654,7 @@ window.addEventListener('pagehide',stopCamera);
 </script>
 
 <script>
-const APP_VERSION='v1.8.2';const APP_DATE='22/10/2026';
+const APP_VERSION='v1.9.0';const APP_DATE='22/10/2026';
 document.querySelector('.copyright').textContent='© By DV • '+APP_VERSION+' • '+APP_DATE;
 
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
