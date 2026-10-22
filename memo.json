@@ -1,0 +1,50 @@
+{
+  "bullet": "onore",
+  "layout": "cards",
+  "size": "m",
+  "sections": [
+    {
+      "t": "CIRCULATION & DÉPLACEMENTS",
+      "items": [
+        "Allées et issues dégagées (palettes, cartons, encombrement) ?",
+        "Sol sec, propre, sans obstacle ni produit renversé ?",
+        "Extincteurs accessibles ?",
+        "Issues de secours et portes coupe-feu dégagées ?",
+        "Zone rangée (5S), sans déchets ni produits en attente d’évacuation ?",
+        "Charges stockées de façon stable (gerbage, hauteur, calage) ?",
+        "Aides à la manutention disponibles et utilisées (transpalette, diable) ?"
+      ]
+    },
+    {
+      "t": "ÉQUIPEMENTS DE PROTECTION INDIVIDUELLE",
+      "items": [
+        "EPI requis portés correctement (chaussures, gants, charlotte, casque anti-bruit) ?",
+        "EPI en bon état (non usés, non déchirés, non périmés) ?"
+      ]
+    },
+    {
+      "t": "MACHINES & ÉQUIPEMENTS DE TRAVAIL",
+      "items": [
+        "Protecteurs / carters en place et fonctionnels ?",
+        "Arrêts d’urgence accessibles, identifiés ?",
+        "Procédure de consignation appliquée lors des interventions ?"
+      ]
+    },
+    {
+      "t": "RISQUE ÉLECTRIQUE",
+      "items": [
+        "Armoires et coffrets fermés, dégagés, non encombrés ?",
+        "Aucun câble / rallonge endommagé, au sol ou en zone humide ?"
+      ]
+    },
+    {
+      "t": "TRAVAIL EN HAUTEUR",
+      "items": [
+        "Accès en hauteur (échelles, passerelles, plateformes) en bon état et sécurisés ?",
+        "Garde-corps et protections collectives en place ?",
+        "Matériel utilisé (escabeau, PIRL) adapté à la tâche et vérifié ?"
+      ]
+    }
+  ],
+  "rev": 1
+}
