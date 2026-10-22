@@ -1,5 +1,5 @@
-// Visite sécurité - v1.8.2 - 22/10/2026
-const VERSION='v1.8.2';
+// Visite sécurité - v1.9.1 - 22/10/2026
+const VERSION='v1.9.1';
 const CACHE='visite-securite-'+VERSION;
 const APP_FILES=[
   './','./index.html','./manifest.webmanifest','./memo.json',
