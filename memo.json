@@ -1,4 +1,5 @@
 {
+  "rev": 2,
   "bullet": "onore",
   "layout": "cards",
   "size": "m",
@@ -12,7 +13,8 @@
         "Issues de secours et portes coupe-feu dégagées ?",
         "Zone rangée (5S), sans déchets ni produits en attente d’évacuation ?",
         "Charges stockées de façon stable (gerbage, hauteur, calage) ?",
-        "Aides à la manutention disponibles et utilisées (transpalette, diable) ?"
+        "Aides à la manutention disponibles et utilisées (transpalette, diable) ?",
+        "essai"
       ]
     },
     {
@@ -45,6 +47,5 @@
         "Matériel utilisé (escabeau, PIRL) adapté à la tâche et vérifié ?"
       ]
     }
-  ],
-  "rev": 1
+  ]
 }
