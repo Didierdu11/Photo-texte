@@ -15,3 +15,21 @@
    - Permissions → Repository permissions → **Contents : Read and write**.
 2. Dans l'application : *Aide-mémoire → ✏️ Modifier → ⚙️ GitHub*, vérifier propriétaire / dépôt / branche, coller le jeton, *Enregistrer*. Le jeton reste sur cet appareil, jamais dans les fichiers.
 3. Modifier le texte, puis **💾 Enregistrer** → mot de passe → le fichier `memo.json` est mis à jour sur GitHub. Tous les appareils le lisent depuis GitHub à l'ouverture de l'aide-mémoire (copie gardée pour le mode hors ligne).
+
+## 4. Enregistrement du fichier Excel sur l'intranet
+Réglage dans l'application : bouton **🌐 Enregistrement sur l'intranet**. Trois modes :
+
+- **Désactivé** : téléchargement habituel.
+- **Dossier réseau** : Chrome ou Edge sur ordinateur uniquement. On choisit une fois un dossier du partage (ex. `\\serveur\partage\Visites`) ; le navigateur redemande l'autorisation à chaque session. Rien à installer côté serveur.
+- **Serveur intranet** : fonctionne aussi sur téléphone. L'application envoie le fichier en `PUT` (WebDAV : adresse + nom du fichier) ou en `POST` (formulaire avec les champs `file` et `filename`), avec une authentification Basic facultative.
+
+À prévoir avec le service informatique pour le mode « Serveur intranet » :
+1. Une adresse **https** (une page https ne peut pas envoyer vers du http : le navigateur bloque).
+2. Le serveur doit répondre aux requêtes CORS depuis le site de l'application, par exemple :
+   `Access-Control-Allow-Origin: https://<proprietaire>.github.io`
+   `Access-Control-Allow-Methods: PUT, POST, OPTIONS`
+   `Access-Control-Allow-Headers: Authorization, Content-Type`
+   et, pour un serveur en adresse privée appelé depuis un site public, `Access-Control-Allow-Private-Network: true`.
+3. Le téléphone doit être sur le Wi-Fi de l'entreprise ou en VPN.
+
+Le bouton « Tester l'envoi » dépose `test-visite-securite.txt` pour vérifier. En cas d'échec, le fichier Excel est toujours téléchargé sur l'appareil.
