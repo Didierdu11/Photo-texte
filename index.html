@@ -345,7 +345,7 @@ body{background:#f3f4f6;padding:0}
       <button id="checkUpdate" style="padding:10px 16px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#17212b;font-weight:600">🔄 Vérifier la mise à jour</button>
       <span id="updateStatus" style="align-self:center;font-size:14px;color:#64748b"></span>
     </div>
-    <p class="copyright">© By DV</p>
+    <p class="copyright">© By D@V</p>
 </main>
 
 
@@ -1503,7 +1503,7 @@ $('exportXlsx').onclick=async()=>{
   });
   let lastRow=7+photos.length;
   ws.mergeCells(`A${lastRow}:G${lastRow}`);
-  ws.getCell(`A${lastRow}`).value='© By DV • '+APP_VERSION+' • '+APP_DATE;
+  ws.getCell(`A${lastRow}`).value='© By D@V • '+APP_VERSION+' • '+APP_DATE;
   ws.getCell(`A${lastRow}`).alignment={horizontal:'center'};
   ws.getCell(`A${lastRow}`).font={italic:true,size:9,color:{argb:'FF94A3B8'}};
   let b=await wb.xlsx.writeBuffer();
@@ -1671,7 +1671,7 @@ $('exportPdf').onclick=()=>{
     pdf.text('Page '+i+' / '+n,170,290);
     pdf.setFontSize(8);
     pdf.setTextColor(150);
-    pdf.text('© By DV • '+APP_VERSION+' • '+APP_DATE,14,290);
+    pdf.text('© By D@V • '+APP_VERSION+' • '+APP_DATE,14,290);
   }
   downloadForApple(pdf.output('blob'),'compte-rendu-'+q.date+'.pdf');
 };
@@ -1708,7 +1708,7 @@ window.addEventListener('pagehide',stopCamera);
 
 <script>
 const APP_VERSION='v1.9.1';const APP_DATE='23/10/2026';
-document.querySelector('.copyright').textContent='© By DV • '+APP_VERSION+' • '+APP_DATE;
+document.querySelector('.copyright').textContent='© By D@V • '+APP_VERSION+' • '+APP_DATE;
 
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
   window.addEventListener('load',async()=>{
