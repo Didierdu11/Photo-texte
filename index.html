@@ -203,7 +203,7 @@ body{background:#f3f4f6;padding:0}
 .memo-pw-box label{display:block;font-size:.8rem;font-weight:600;color:#4b3d58;margin:0 0 8px}
 .memo-pw-box label input{margin:3px 0 0}
 .memo-pw-box select{width:100%;box-sizing:border-box;margin:3px 0 8px;padding:10px;border:1.5px solid #d9cbb5;border-radius:10px;background:#fff;color:#281936;font-size:.95rem}
-.memo-pw-box .chk{display:flex;gap:8px;align-items:center}
+.memo-pw-box .chk{display:flex;gap:8px;align-items:center;margin-top:12px}
 .memo-pw-box .chk input{width:auto;margin:0}
 /* ========== Notice d'utilisation : charte Onoré ========== */
 .help-overlay{background:rgba(40,25,54,.62)}
@@ -345,7 +345,7 @@ body{background:#f3f4f6;padding:0}
       <button id="checkUpdate" style="padding:10px 16px;border-radius:10px;border:1px solid #cbd5e1;background:#fff;color:#17212b;font-weight:600">🔄 Vérifier la mise à jour</button>
       <span id="updateStatus" style="align-self:center;font-size:14px;color:#64748b"></span>
     </div>
-    <p class="copyright">© By D@V</p>
+    <p class="copyright">© By DV</p>
 </main>
 
 
@@ -375,8 +375,10 @@ body{background:#f3f4f6;padding:0}
 
 <div class="memo-pw" id="intraCfg" hidden><div class="memo-pw-box"><h4>Enregistrement Excel sur l’intranet</h4>
   <p>Après chaque export Excel, le fichier peut être enregistré sur le réseau de l’entreprise.</p>
-  <label>Mode<select id="inMode"><option value="off">Désactivé (téléchargement seulement)</option><option value="folder">Dossier réseau (Chrome / Edge sur ordinateur)</option><option value="url">Serveur intranet (adresse web)</option></select></label>
+  <label>Mode<select id="inMode"><option value="off">Désactivé (téléchargement seulement)</option><option value="folder">Dossier réseau (PC / tablette Windows)</option><option value="url">Serveur intranet (adresse web)</option></select></label>
   <div id="inFolder" hidden>
+    <label>Chemin réseau du dossier<input id="inPath" placeholder="\\serveur\partage\Visites" autocapitalize="off" autocomplete="off" spellcheck="false"></label>
+    <p style="margin:0 0 8px;font-size:.8rem;color:#6b5a78">Cliquez sur « Choisir le dossier » : le chemin est copié. Dans la fenêtre Windows, collez-le dans la barre d’adresse (Ctrl+V), validez avec Entrée, puis « Sélectionner le dossier ».</p>
     <div class="memo-pw-btns"><button id="inPick" type="button">📁 Choisir le dossier…</button></div>
     <p id="inFolderName" style="margin:8px 0 0;font-size:.85rem"></p>
   </div>
@@ -391,6 +393,7 @@ body{background:#f3f4f6;padding:0}
   <div class="memo-pw-btns"><button id="inOk" type="button">Enregistrer</button><button id="inNo" type="button">Fermer</button></div>
   <p style="margin:10px 0 0"><a href="#" id="inTest" style="font-size:.85rem">Tester l’envoi d’un petit fichier</a></p>
 </div></div>
+<div class="memo-pw" id="pwAsk" hidden><div class="memo-pw-box"><h4 id="pwAskTitle">Mot de passe</h4><p id="pwAskText"></p><input type="password" id="pwAskInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Mot de passe"><p class="memo-pw-err" id="pwAskErr"></p><div class="memo-pw-btns"><button id="pwAskOk" type="button">Valider</button><button id="pwAskNo" type="button">Annuler</button></div></div></div>
 <div class="help-overlay" id="helpOverlay">
   <div class="help-modal">
     <button class="close-help" id="closeHelp">✕ Fermer</button>
@@ -485,7 +488,8 @@ body{background:#f3f4f6;padding:0}
     <p>Appuyez sur <b>🌐 Enregistrement sur l’intranet</b> pour choisir où sont enregistrés les fichiers <b>📊 Excel</b> et <b>🗄️ Excel base complète</b>.</p>
     <ul>
       <li><b>Désactivé</b> : le fichier est seulement téléchargé sur l’appareil.</li>
-      <li><b>Dossier réseau</b> (ordinateur avec Chrome ou Edge) : choisissez une fois un dossier du partage réseau (par exemple <code>\\serveur\partage\Visites</code>). Le navigateur redemande l’autorisation à chaque nouvelle session. Ce mode n’existe pas sur téléphone, iPhone, Firefox ou Safari.</li>
+      <li><b>Dossier réseau</b> (ordinateur ou tablette Windows avec Chrome ou Edge) : saisissez le <b>chemin réseau</b> du dossier (par exemple <code>\\serveur\partage\Visites</code>), puis appuyez sur <b>📁 Choisir le dossier…</b>. Le chemin est copié : dans la fenêtre Windows, collez-le dans la barre d’adresse (Ctrl+V), validez avec Entrée, puis « Sélectionner le dossier ». L’application vérifie que le nom du dossier correspond à la fin du chemin saisi. Le navigateur peut redemander l’autorisation d’écriture à chaque nouvelle session. Ce mode n’existe pas sur téléphone, iPhone, Firefox ou Safari.</li>
+      <li><b>Mémoriser</b> : appuyez sur <b>Enregistrer</b>, puis saisissez le <b>mot de passe</b>. Sans mot de passe correct, le chemin et les réglages ne sont pas modifiés. Ils restent sur l’appareil : à refaire une fois sur chaque tablette.</li>
       <li><b>Serveur intranet</b> (aussi sur téléphone) : indiquez l’adresse https du serveur, la méthode (PUT ou POST) et, si besoin, un identifiant et un mot de passe. L’appareil doit être sur le Wi-Fi de l’entreprise ou en VPN, et le serveur doit autoriser l’application (à demander au service informatique).</li>
       <li><b>Tester l’envoi</b> dépose un petit fichier <code>test-visite-securite.txt</code> pour vérifier le réglage.</li>
       <li>La case <b>Télécharger aussi une copie sur cet appareil</b> garde une copie locale. Si l’enregistrement sur l’intranet échoue, le fichier est toujours téléchargé et un message l’indique.</li>
@@ -1333,7 +1337,7 @@ function downloadForApple(blob,filename){
 const IN_KEY='visiteSecuriteIntranet';
 function intranetCfg(){
   let c={};try{c=JSON.parse(localStorage.getItem(IN_KEY)||'{}')||{};}catch(e){}
-  return Object.assign({mode:'off',url:'',method:'PUT',user:'',pass:'',folderName:'',also:true},c);
+  return Object.assign({mode:'off',url:'',method:'PUT',user:'',pass:'',folderName:'',path:'',also:true},c);
 }
 function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('visiteSecuriteDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
 async function idbSet(k,v){const d=await idbOpen();return new Promise((res,rej)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error);});}
@@ -1346,10 +1350,20 @@ async function intranetPrepare(){
     if(dir&&dir.queryPermission&&await dir.queryPermission({mode:'readwrite'})!=='granted')await dir.requestPermission({mode:'readwrite'});
   }catch(e){}
 }
-async function intranetSend(blob,name){
+function askPw(title,text){
+  return new Promise(res=>{
+    const m=$('pwAsk'),i=$('pwAskInput');
+    $('pwAskTitle').textContent=title||'Mot de passe';$('pwAskText').textContent=text||'';$('pwAskErr').textContent='';
+    i.value='';m.hidden=false;setTimeout(()=>i.focus(),50);
+    const done=ok=>{m.hidden=true;$('pwAskOk').onclick=null;$('pwAskNo').onclick=null;i.onkeydown=null;res(ok);};
+    const check=()=>{if(sha256hex(i.value.trim())===MEMO_PW_HASH)done(true);else{$('pwAskErr').textContent='Mot de passe incorrect.';i.select();}};
+    $('pwAskOk').onclick=check;$('pwAskNo').onclick=()=>done(false);i.onkeydown=e=>{if(e.key==='Enter')check();};
+  });
+}
+async function intranetSend(blob,name,dirOverride){
   const c=intranetCfg();
   if(c.mode==='folder'){
-    const dir=await idbGet('dir');
+    const dir=dirOverride||await idbGet('dir');
     if(!dir)throw new Error('aucun dossier choisi');
     if(dir.queryPermission&&await dir.queryPermission({mode:'readwrite'})!=='granted'&&await dir.requestPermission({mode:'readwrite'})!=='granted')throw new Error('accès au dossier refusé');
     const fh=await dir.getFileHandle(name,{create:true}),w=await fh.createWritable();
@@ -1374,7 +1388,7 @@ async function intranetSend(blob,name){
 async function saveExcel(blob,name,quiet){
   const c=intranetCfg();let note='',sent=false;
   if(c.mode!=='off'){
-    try{await intranetSend(blob,name);sent=true;note=' • Intranet : ✔ '+name;}
+    try{await intranetSend(blob,name);sent=true;note=' • Intranet : ✔ '+(c.mode==='folder'&&c.path?c.path.replace(/[\\/]+$/,'')+'\\':'')+name;}
     catch(e){note=' • Intranet : échec ('+(e.message||e)+'), fichier téléchargé sur l’appareil';}
   }
   if(!sent||c.also)downloadFile(blob,name);
@@ -1382,34 +1396,59 @@ async function saveExcel(blob,name,quiet){
   return note;
 }
 (function(){
+  let pendingDir=null;
   const show=()=>{const m=$('inMode').value;$('inFolder').hidden=m!=='folder';$('inUrl').hidden=m!=='url';};
-  const fill=()=>{
-    const c=intranetCfg();
-    $('inMode').value=c.mode;$('inUrlVal').value=c.url;$('inMethod').value=c.method;$('inUser').value=c.user;$('inPass').value=c.pass;$('inAlso').checked=!!c.also;
-    $('inFolderName').textContent=window.showDirectoryPicker?(c.folderName?'Dossier choisi : '+c.folderName:'Aucun dossier choisi.'):'Non disponible sur ce navigateur : utilisez Chrome ou Edge sur ordinateur, ou le mode « Serveur intranet ».';
-    $('inPick').disabled=!window.showDirectoryPicker;
-    $('inMsg').textContent='';show();
+  const lastSeg=p=>(p||'').split(/[\\/]+/).filter(Boolean).pop()||'';
+  const info=()=>{
+    if(!window.showDirectoryPicker){$('inFolderName').style.color='#b3261e';$('inFolderName').textContent='Non disponible sur ce navigateur : utilisez Chrome ou Edge, ou le mode « Serveur intranet ».';return;}
+    const name=pendingDir?pendingDir.name:intranetCfg().folderName,seg=lastSeg($('inPath').value);
+    let t='Aucun dossier choisi.',col='#4b3d58';
+    if(name){
+      t='Dossier choisi : '+name+(pendingDir?' (à valider avec « Enregistrer »)':'');
+      if(seg){if(seg.toLowerCase()===name.toLowerCase()){t+=' ✔ correspond au chemin saisi.';col='#2e7d32';}else{t+=' ⚠ ne porte pas le même nom que la fin du chemin saisi (« '+seg+' »), vérifiez.';col='#b3261e';}}
+    }
+    $('inFolderName').style.color=col;$('inFolderName').textContent=t;
   };
-  const read=()=>Object.assign(intranetCfg(),{mode:$('inMode').value,url:$('inUrlVal').value.trim(),method:$('inMethod').value,user:$('inUser').value.trim(),pass:$('inPass').value,also:$('inAlso').checked});
+  const fill=()=>{
+    const c=intranetCfg();pendingDir=null;
+    $('inMode').value=c.mode;$('inPath').value=c.path;$('inUrlVal').value=c.url;$('inMethod').value=c.method;$('inUser').value=c.user;$('inPass').value=c.pass;$('inAlso').checked=!!c.also;
+    $('inPick').disabled=!window.showDirectoryPicker;
+    $('inMsg').textContent='';show();info();
+  };
+  const read=()=>Object.assign(intranetCfg(),{mode:$('inMode').value,path:$('inPath').value.trim(),url:$('inUrlVal').value.trim(),method:$('inMethod').value,user:$('inUser').value.trim(),pass:$('inPass').value,also:$('inAlso').checked});
   const save=c=>{try{localStorage.setItem(IN_KEY,JSON.stringify(c));}catch(e){}};
   $('intranetBtn').onclick=()=>{fill();$('intraCfg').hidden=false;};
   $('inMode').onchange=show;
+  $('inPath').oninput=info;
   $('inPick').onclick=async()=>{
-    try{
-      const dir=await window.showDirectoryPicker({mode:'readwrite'});
-      await idbSet('dir',dir);
-      const c=read();c.folderName=dir.name;save(c);
-      $('inFolderName').textContent='Dossier choisi : '+dir.name;
-    }catch(e){if(e&&e.name!=='AbortError')$('inMsg').textContent='Impossible de choisir ce dossier : '+(e.message||e);}
+    const path=$('inPath').value.trim();
+    if(path&&navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(path).catch(()=>{});
+    try{pendingDir=await window.showDirectoryPicker({mode:'readwrite'});info();}
+    catch(e){if(e&&e.name!=='AbortError'){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Impossible de choisir ce dossier : '+(e.message||e);}}
   };
-  $('inOk').onclick=()=>{save(read());$('intraCfg').hidden=true;cloudMsg(intranetCfg().mode==='off'?'Enregistrement intranet désactivé.':'Enregistrement intranet activé.',true);};
+  $('inOk').onclick=async()=>{
+    const c=read();
+    if(!(await askPw('Mémoriser les réglages','Saisissez le mot de passe pour enregistrer le chemin et les réglages.')))return;
+    if(pendingDir){
+      try{await idbSet('dir',pendingDir);c.folderName=pendingDir.name;pendingDir=null;}
+      catch(e){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Dossier non mémorisé : '+(e.message||e);return;}
+    }
+    save(c);$('intraCfg').hidden=true;
+    cloudMsg(c.mode==='off'?'Enregistrement intranet désactivé.':'Réglages intranet mémorisés'+(c.mode==='folder'&&c.path?' : '+c.path:'')+'.',true);
+  };
   $('inNo').onclick=()=>{$('intraCfg').hidden=true;};
   $('inTest').onclick=async e=>{
     e.preventDefault();
-    const m=$('inMode').value;if(m==='off'){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Choisissez d’abord un mode.';return;}
-    save(read());$('inMsg').style.color='#4b3d58';$('inMsg').textContent='Envoi du test…';
-    try{await intranetPrepare();await intranetSend(new Blob(['Test Visite sécurité - '+new Date().toLocaleString('fr-FR')],{type:'text/plain'}),'test-visite-securite.txt');$('inMsg').style.color='#2e7d32';$('inMsg').textContent='✔ Test réussi (fichier test-visite-securite.txt).';}
-    catch(err){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Échec : '+(err.message||err);}
+    const c=read();
+    if(c.mode==='off'){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Choisissez d’abord un mode.';return;}
+    $('inMsg').style.color='#4b3d58';$('inMsg').textContent='Envoi du test…';
+    const real=localStorage.getItem(IN_KEY);save(c);
+    try{
+      if(!pendingDir)await intranetPrepare();
+      await intranetSend(new Blob(['Test Visite sécurité - '+new Date().toLocaleString('fr-FR')],{type:'text/plain'}),'test-visite-securite.txt',pendingDir||undefined);
+      $('inMsg').style.color='#2e7d32';$('inMsg').textContent='✔ Test réussi (fichier test-visite-securite.txt).';
+    }catch(err){$('inMsg').style.color='#b3261e';$('inMsg').textContent='Échec : '+(err.message||err);}
+    try{if(real===null)localStorage.removeItem(IN_KEY);else localStorage.setItem(IN_KEY,real);}catch(x){}
   };
 })();
 
@@ -1668,7 +1707,7 @@ window.addEventListener('pagehide',stopCamera);
 </script>
 
 <script>
-const APP_VERSION='v1.9.2';const APP_DATE='22/10/2026';
+const APP_VERSION='v1.9.0';const APP_DATE='22/10/2026';
 document.querySelector('.copyright').textContent='© By DV • '+APP_VERSION+' • '+APP_DATE;
 
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){

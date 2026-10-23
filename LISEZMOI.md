@@ -20,7 +20,7 @@
 Réglage dans l'application : bouton **🌐 Enregistrement sur l'intranet**. Trois modes :
 
 - **Désactivé** : téléchargement habituel.
-- **Dossier réseau** : Chrome ou Edge sur ordinateur uniquement. On choisit une fois un dossier du partage (ex. `\\serveur\partage\Visites`) ; le navigateur redemande l'autorisation à chaque session. Rien à installer côté serveur.
+- **Dossier réseau** : Chrome ou Edge sur ordinateur ou tablette Windows. On saisit le chemin (ex. `\\serveur\partage\Visites`) puis on choisit le dossier dans la fenêtre Windows (le chemin est copié, il suffit de le coller dans la barre d'adresse). Le chemin et le dossier sont mémorisés sur l'appareil après saisie du mot de passe ; le navigateur peut redemander l'autorisation d'écriture à chaque session. Le compte Windows de la tablette doit avoir le droit d'écrire dans le partage. Rien à installer côté serveur.
 - **Serveur intranet** : fonctionne aussi sur téléphone. L'application envoie le fichier en `PUT` (WebDAV : adresse + nom du fichier) ou en `POST` (formulaire avec les champs `file` et `filename`), avec une authentification Basic facultative.
 
 À prévoir avec le service informatique pour le mode « Serveur intranet » :
