@@ -1,5 +1,5 @@
 {
-  "rev": 2,
+  "rev": 3,
   "bullet": "onore",
   "layout": "cards",
   "size": "m",
@@ -44,7 +44,8 @@
       "items": [
         "Accès en hauteur (échelles, passerelles, plateformes) en bon état et sécurisés ?",
         "Garde-corps et protections collectives en place ?",
-        "Matériel utilisé (escabeau, PIRL) adapté à la tâche et vérifié ?"
+        "Matériel utilisé (escabeau, PIRL) adapté à la tâche et vérifié ?",
+        "Essai"
       ]
     }
   ]
