@@ -1,0 +1,11 @@
+{
+  "rev": 1,
+  "zones": [
+    "Production",
+    "Stockage / Entrepôt",
+    "Expédition",
+    "Maintenance",
+    "Extérieur",
+    "Bureaux"
+  ]
+}

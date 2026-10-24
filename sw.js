@@ -1,5 +1,5 @@
-// Visite sécurité - v1.9.2 - 23/10/2026
-const VERSION='v1.9.2';
+// Visite sécurité - v2.0.0 - 23/10/2026
+const VERSION='v2.0.0';
 const CACHE='visite-securite-'+VERSION;
 const APP_FILES=[
   './','./index.html','./manifest.webmanifest','./memo.json',
@@ -54,6 +54,21 @@ self.addEventListener('fetch',event=>{
   const url=new URL(req.url);
   const sameOrigin=url.origin===self.location.origin;
   if(!sameOrigin && !CACHEABLE_HOSTS.includes(url.hostname)) return;
+
+  // Liste des zones : toujours la version la plus récente, sinon la dernière copie en cache
+  if(sameOrigin&&url.pathname.endsWith('/zones.json')){
+    event.respondWith((async()=>{
+      const cache=await caches.open(CACHE);
+      try{
+        const net=await fetchTimeout(req,4000);
+        if(net&&net.ok)cache.put('./zones.json',net.clone());
+        return net;
+      }catch(e){
+        return (await cache.match('./zones.json'))||Response.error();
+      }
+    })());
+    return;
+  }
 
   // Ouverture de l'appli : réseau d'abord (4 s max), sinon page en cache -> démarre hors ligne
   if(req.mode==='navigate'){
