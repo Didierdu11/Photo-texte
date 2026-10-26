@@ -1,20 +1,18 @@
 {
-  "rev": 3,
+  "rev": 4,
   "zones": [
     "UT1 Stock Tampon MP/ Préparation L1",
     "UT2 Prod L1",
-    "UT3 Conditionnement/Stock tampon Emballage / déchets emballage",
+    "UT3 Condi L1 / stock tampon emballage",
     "UT4 Emballage",
-    "UT5 Quai réception / Stocks MP / Silo / Déchets Prod",
-    "UT6 Quai Expédition /  CF-MP /Stock emballage",
-    "UT7 Prod / Prepa L2",
-    "UT8 Fours L2",
+    "UT5 Réception / Stocks MP / Silo",
+    "UT6 Expédition /  Stock emballage",
+    "UT7&8 Prod  & Prépa L2",
     "UT9 Maintenance / Combles",
-    "UT10 Administratif / Lieux communs",
+    "UT10&13 Administratif / Lieux communs",
     "UT11 Extérieur",
-    "UT12 Conditionnement / Cryo L2",
-    "UT13 Labo",
-    "UT14 Plonges / Propre-Sale-Chariots",
-    "Toutes les zone"
+    "UT12 Conditionnement L2/ Cryo",
+    "UT14 Plonges",
+    "Toutes les zones"
   ]
 }
